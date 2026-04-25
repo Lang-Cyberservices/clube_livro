@@ -1,0 +1,8 @@
+/run
+/vendor
+writable/*
+!writable/index.html
+!writable/.gitkeep
+/.codex
+/.env
+/composer.lock
