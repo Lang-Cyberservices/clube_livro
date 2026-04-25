@@ -48,10 +48,18 @@ if (! function_exists('format_phone')) {
     {
         $digits = preg_replace('/\D+/', '', (string) $phone) ?? '';
 
-        if (strlen($digits) !== 11) {
+        if (strlen($digits) === 10) {
+            return sprintf('(%s) %s-%s', substr($digits, 0, 2), substr($digits, 2, 4), substr($digits, 6, 4));
+        }
+
+        if (strlen($digits) === 11) {
+            return sprintf('(%s) %s-%s-%s', substr($digits, 0, 2), substr($digits, 2, 1), substr($digits, 3, 4), substr($digits, 7, 4));
+        }
+
+        if ($digits === '') {
             return $digits;
         }
 
-        return sprintf('(%s) %s-%s-%s', substr($digits, 0, 2), substr($digits, 2, 1), substr($digits, 3, 4), substr($digits, 7, 4));
+        return $digits;
     }
 }

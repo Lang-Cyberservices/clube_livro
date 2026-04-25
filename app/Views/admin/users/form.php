@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label"><?= $user ? 'Nova senha (opcional)' : 'Senha'; ?></label>
-                        <input type="password" name="password" class="form-control">
+                        <input type="text" name="password" class="form-control" value="123mudar4">
                         <small class="text-muted d-block mt-1">Ao definir uma senha, o usuario precisara troca-la no primeiro acesso.</small>
                     </div>
                 </div>
