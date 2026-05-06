@@ -17,6 +17,9 @@
                 </li>
                 <?php if (is_logged_in()): ?>
                     <li class="nav-item">
+                        <a class="nav-link" href="/votacao">Votação</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/perfil">Meu cadastro</a>
                     </li>
                     <?php if (is_admin()): ?>

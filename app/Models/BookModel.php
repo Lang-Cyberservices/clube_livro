@@ -13,6 +13,7 @@ class BookModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'title',
+        'author',
         'cover_image',
         'description',
         'start_reading_date',
@@ -34,12 +35,15 @@ class BookModel extends Model
 
     public function getCurrentBook(): ?array
     {
-        return $this->where('is_current', 1)->orderBy('id', 'DESC')->first();
+        return $this->where('is_current', 1)
+            ->where('meeting_happened', 0)
+            ->orderBy('id', 'DESC')
+            ->first();
     }
 
     public function getPreviousBooks(): array
     {
-        return $this->where('is_current', 0)
+        return $this->where('meeting_happened', 1)
             ->orderBy('COALESCE(actual_meeting_date, scheduled_meeting_date)', 'DESC', false)
             ->orderBy('id', 'DESC')
             ->findAll();
@@ -49,5 +53,10 @@ class BookModel extends Model
     {
         $this->builder()->set('is_current', 0)->update();
         $this->update($bookId, ['is_current' => 1]);
+    }
+
+    public function hasOngoingBook(): bool
+    {
+        return $this->where('meeting_happened', 0)->countAllResults() > 0;
     }
 }

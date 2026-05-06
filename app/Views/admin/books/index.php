@@ -15,6 +15,7 @@
             <thead>
                 <tr>
                     <th>Título</th>
+                    <th>Autor</th>
                     <th>Leitura</th>
                     <th>Encontro</th>
                     <th>Status</th>
@@ -30,6 +31,7 @@
                                 <span class="badge text-bg-dark ms-2">Atual</span>
                             <?php endif; ?>
                         </td>
+                        <td><?= esc($book['author'] ?? '-'); ?></td>
                         <td><?= date('d/m/Y', strtotime($book['start_reading_date'])); ?></td>
                         <td><?= date('d/m/Y', strtotime($book['meeting_happened'] ? $book['actual_meeting_date'] : $book['scheduled_meeting_date'])); ?></td>
                         <td><?= $book['meeting_happened'] ? 'Realizado' : 'Pendente'; ?></td>

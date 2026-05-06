@@ -20,6 +20,9 @@
                     <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
                         <div>
                             <h2 class="h3 mb-1"><?= esc($book['title']); ?></h2>
+                            <?php if (! empty($book['author'])): ?>
+                                <p class="small text-uppercase text-muted fw-semibold mb-2">por <?= esc($book['author']); ?></p>
+                            <?php endif; ?>
                             <p class="text-muted mb-0"><?= esc($book['description']); ?></p>
                         </div>
                         <div class="text-md-end">

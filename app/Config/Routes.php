@@ -32,6 +32,9 @@ $routes->group('', ['filter' => 'authpass'], static function ($routes) {
     $routes->post('comments/(:num)/replies', 'CommentController::reply/$1');
     $routes->get('perfil', 'ProfileController::edit');
     $routes->post('perfil', 'ProfileController::update');
+    $routes->get('votacao', 'VotingController::index');
+    $routes->post('votacao/sugestoes', 'VotingController::storeSuggestion');
+    $routes->post('votacao/votar', 'VotingController::vote');
 });
 
 $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'authpassadmin'], static function ($routes) {
@@ -43,6 +46,9 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
     $routes->get('books/(:num)/edit', 'BooksController::edit/$1');
     $routes->post('books/(:num)', 'BooksController::update/$1');
     $routes->post('books/(:num)/highlight', 'BooksController::highlight/$1');
+    $routes->get('votacao', 'VotingController::index');
+    $routes->post('votacao/ativar', 'VotingController::activate');
+    $routes->post('votacao/finalizar', 'VotingController::finalize');
 
     $routes->get('users', 'UsersController::index');
     $routes->get('users/new', 'UsersController::new');

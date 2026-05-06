@@ -20,6 +20,10 @@
                         <input type="text" name="title" class="form-control" value="<?= old('title', $book['title'] ?? ''); ?>">
                     </div>
                     <div class="col-md-4">
+                        <label class="form-label">Autor</label>
+                        <input type="text" name="author" class="form-control" value="<?= old('author', $book['author'] ?? ''); ?>">
+                    </div>
+                    <div class="col-md-8">
                         <label class="form-label">Capa do livro (URL)</label>
                         <input type="url" name="cover_image" class="form-control" value="<?= old('cover_image', $book['cover_image'] ?? ''); ?>">
                     </div>

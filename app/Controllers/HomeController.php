@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\BookModel;
 use App\Models\CommentModel;
 use App\Models\CommentReplyModel;
+use App\Models\VotingSessionModel;
 
 class HomeController extends BaseController
 {
@@ -19,6 +20,7 @@ class HomeController extends BaseController
             'book'     => $currentBook,
             'comments' => $discussion['comments'],
             'replies'  => $discussion['replies'],
+            'votingSession' => (new VotingSessionModel())->getOpenSession(),
         ]);
     }
 

@@ -100,6 +100,7 @@ class BooksController extends BaseController
     {
         $rules = [
             'title'                  => 'required|min_length[3]|max_length[255]',
+            'author'                 => 'required|min_length[3]|max_length[255]',
             'cover_image'            => 'required|valid_url_strict',
             'description'            => 'required|min_length[20]',
             'start_reading_date'     => 'required|valid_date[Y-m-d]',
@@ -124,6 +125,7 @@ class BooksController extends BaseController
 
         return [
             'title'                  => $this->request->getPost('title'),
+            'author'                 => $this->request->getPost('author'),
             'cover_image'            => $this->request->getPost('cover_image'),
             'description'            => $this->request->getPost('description'),
             'start_reading_date'     => $this->request->getPost('start_reading_date'),

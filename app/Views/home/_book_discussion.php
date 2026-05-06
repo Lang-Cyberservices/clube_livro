@@ -14,6 +14,9 @@
                     <span class="badge text-bg-dark mb-3"><?= esc($contextLabel); ?></span>
                 <?php endif; ?>
                 <h1 class="display-4 mb-3"><?= esc($book['title']); ?></h1>
+                <?php if (! empty($book['author'])): ?>
+                    <p class="text-uppercase text-muted fw-semibold mb-3">por <?= esc($book['author']); ?></p>
+                <?php endif; ?>
                 <p class="fs-5 text-secondary mb-4"><?= esc($book['description']); ?></p>
 
                 <div class="row g-3">
