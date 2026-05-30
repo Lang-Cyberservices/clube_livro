@@ -7,7 +7,7 @@
     <section class="hero-panel p-0 mb-5">
         <div class="row g-0 align-items-stretch">
             <div class="col-lg-4">
-                <img src="<?= esc($book['cover_image']); ?>" alt="Capa do livro <?= esc($book['title']); ?>" class="book-cover">
+                <img src="<?= esc($book['cover_image'] ?: base_url('img/cover.png')); ?>" alt="Capa do livro <?= esc($book['title']); ?>" class="book-cover">
             </div>
             <div class="col-lg-8 p-4 p-lg-5">
                 <?php if (! empty($contextLabel)): ?>

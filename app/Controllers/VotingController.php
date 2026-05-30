@@ -37,7 +37,6 @@ class VotingController extends BaseController
         $rules = [
             'title'       => 'required|min_length[3]|max_length[255]',
             'author'      => 'required|min_length[3]|max_length[255]',
-            'cover_image' => 'permit_empty|valid_url_strict',
             'description' => 'required|min_length[20]',
         ];
 
@@ -45,14 +44,18 @@ class VotingController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $coverImage = trim((string) $this->request->getPost('cover_image'));
+        try {
+            $coverImage = $this->resolveUploadedCover(null);
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->withInput()->with('errors', ['cover_image_file' => $e->getMessage()]);
+        }
 
         (new BookSuggestionModel())->insert([
             'session_id'  => $session['id'],
             'user_id'     => current_user_id(),
             'title'       => trim((string) $this->request->getPost('title')),
             'author'      => trim((string) $this->request->getPost('author')),
-            'cover_image' => $coverImage !== '' ? $coverImage : null,
+            'cover_image' => $coverImage,
             'description' => trim((string) $this->request->getPost('description')),
         ]);
 
@@ -76,15 +79,14 @@ class VotingController extends BaseController
             return redirect()->to('/votacao')->with('error', 'Selecione uma sugestão válida para votar.');
         }
 
-        $voteModel = new BookVoteModel();
-        $existingVote = $voteModel->findUserVote((int) $session['id'], (int) current_user_id());
+        $existingVote = (new BookVoteModel())->findUserVote((int) $session['id'], (int) current_user_id());
 
         if ($existingVote !== null) {
-            $voteModel->update((int) $existingVote['id'], [
+            (new BookVoteModel())->update((int) $existingVote['id'], [
                 'suggestion_id' => $suggestionId,
             ]);
         } else {
-            $voteModel->insert([
+            (new BookVoteModel())->insert([
                 'session_id'    => $session['id'],
                 'suggestion_id' => $suggestionId,
                 'user_id'       => current_user_id(),

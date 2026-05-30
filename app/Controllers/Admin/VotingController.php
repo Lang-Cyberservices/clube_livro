@@ -70,7 +70,6 @@ class VotingController extends BaseController
         $rules = [
             'title'       => 'required|min_length[3]|max_length[255]',
             'author'      => 'required|min_length[3]|max_length[255]',
-            'cover_image' => 'permit_empty|valid_url_strict',
             'description' => 'required|min_length[20]',
         ];
 
@@ -78,14 +77,18 @@ class VotingController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $coverImage = trim((string) $this->request->getPost('cover_image'));
+        try {
+            $coverImage = $this->resolveUploadedCover(null);
+        } catch (\RuntimeException $e) {
+            return redirect()->to('/admin/votacao')->with('error', $e->getMessage());
+        }
 
         $suggestionModel->insert([
             'session_id'  => $session['id'],
             'user_id'     => $targetUserId,
             'title'       => trim((string) $this->request->getPost('title')),
             'author'      => trim((string) $this->request->getPost('author')),
-            'cover_image' => $coverImage !== '' ? $coverImage : null,
+            'cover_image' => $coverImage,
             'description' => trim((string) $this->request->getPost('description')),
         ]);
 

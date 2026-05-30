@@ -60,6 +60,12 @@
             min-height: 420px;
             object-fit: cover;
         }
+        .book-cover-card {
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            object-fit: cover;
+            display: block;
+        }
         .comment-card,
         .reply-card {
             border-radius: 18px;

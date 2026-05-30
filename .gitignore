@@ -6,3 +6,6 @@ writable/*
 /.codex
 /.env
 /composer.lock
+/.idea
+/public/uploads/covers/*
+!/public/uploads/covers/.gitkeep

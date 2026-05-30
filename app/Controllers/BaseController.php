@@ -56,4 +56,36 @@ abstract class BaseController extends Controller
         // E.g.: $this->session = \Config\Services::session();
     }
 
+    /**
+     * Resolves cover image from an uploaded file or a URL field.
+     * File takes priority. Returns $existing if neither is provided.
+     *
+     * @throws \RuntimeException if uploaded file has invalid type or exceeds 5 MB
+     */
+    protected function resolveUploadedCover(?string $existing = null): ?string
+    {
+        $file = $this->request->getFile('cover_image_file');
+
+        if ($file !== null && $file->isValid() && ! $file->hasMoved()) {
+            $allowed = ['image/jpeg', 'image/png', 'image/webp'];
+
+            if (! in_array($file->getMimeType(), $allowed, true)) {
+                throw new \RuntimeException('Formato de imagem inválido. Use JPG, PNG ou WEBP.');
+            }
+
+            if ($file->getSize() > 5 * 1024 * 1024) {
+                throw new \RuntimeException('A imagem não pode ter mais de 5 MB.');
+            }
+
+            $newName = $file->getRandomName();
+            $file->move(FCPATH . 'uploads/covers', $newName);
+
+            return base_url('uploads/covers/' . $newName);
+        }
+
+        $url = trim((string) $this->request->getPost('cover_image_url'));
+
+        return $url !== '' ? $url : $existing;
+    }
+
 }
