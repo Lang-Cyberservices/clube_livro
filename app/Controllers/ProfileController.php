@@ -48,8 +48,8 @@ class ProfileController extends BaseController
 
         $phone = UserModel::normalizePhone((string) $this->request->getPost('phone'));
 
-        if (! preg_match('/^\d{10,11}$/', $phone)) {
-            return redirect()->back()->withInput()->with('error', 'Informe um telefone com DDD e 10 ou 11 digitos.');
+        if (! preg_match('/^\d{9,11}$/', $phone)) {
+            return redirect()->back()->withInput()->with('error', 'Informe um telefone com 9 a 11 dígitos.');
         }
 
         $existing = $userModel->findByPhone($phone);
