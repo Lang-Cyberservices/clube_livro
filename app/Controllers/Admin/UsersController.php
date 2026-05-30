@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\CountryModel;
 use App\Models\UserModel;
 
 class UsersController extends BaseController
@@ -17,9 +18,10 @@ class UsersController extends BaseController
     public function new()
     {
         return view('admin/users/form', [
-            'user'   => null,
-            'action' => '/admin/users',
-            'title'  => 'Cadastrar novo usuário',
+            'user'      => null,
+            'action'    => '/admin/users',
+            'title'     => 'Cadastrar novo usuário',
+            'countries' => (new CountryModel())->orderBy('name', 'ASC')->findAll(),
         ]);
     }
 
@@ -45,9 +47,10 @@ class UsersController extends BaseController
         }
 
         return view('admin/users/form', [
-            'user'   => $user,
-            'action' => "/admin/users/{$id}",
-            'title'  => 'Editar usuário',
+            'user'      => $user,
+            'action'    => "/admin/users/{$id}",
+            'title'     => 'Editar usuário',
+            'countries' => (new CountryModel())->orderBy('name', 'ASC')->findAll(),
         ]);
     }
 
@@ -115,6 +118,7 @@ class UsersController extends BaseController
 
         return [
             'name'                 => $this->request->getPost('name'),
+            'country_id'           => (int) $this->request->getPost('country_id'),
             'phone'                => $phone,
             'role'                 => $this->request->getPost('role'),
             'must_change_password' => $mustChangePassword,

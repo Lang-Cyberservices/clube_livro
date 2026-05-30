@@ -10,8 +10,18 @@
             <form method="post" action="/auth/login">
                 <?= csrf_field(); ?>
                 <div class="mb-3">
+                    <label class="form-label">País</label>
+                    <select name="country_id" class="form-select">
+                        <?php foreach ($countries as $country): ?>
+                            <option value="<?= $country['id']; ?>" <?= (int) old('country_id', 1) === (int) $country['id'] ? 'selected' : ''; ?>>
+                                +<?= esc($country['code']); ?> <?= esc($country['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="mb-3">
                     <label for="phone" class="form-label">Telefone</label>
-                    <input type="text" name="phone" id="phone" class="form-control" value="<?= old('phone'); ?>" placeholder="(11) 9-4634-2101" data-phone-mask>
+                    <input type="text" name="phone" id="phone" class="form-control" value="<?= old('phone'); ?>" placeholder="(00) 9-0000-0000" data-phone-mask>
                 </div>
                 <div class="mb-4">
                     <label for="password" class="form-label">Senha</label>

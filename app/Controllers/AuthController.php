@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\CountryModel;
 use App\Models\UserModel;
 
 class AuthController extends BaseController
@@ -9,7 +10,8 @@ class AuthController extends BaseController
     public function login()
     {
         return view('auth/login', [
-            'title' => 'Entrar no clube',
+            'title'     => 'Entrar no clube',
+            'countries' => (new CountryModel())->orderBy('name', 'ASC')->findAll(),
         ]);
     }
 
@@ -25,8 +27,9 @@ class AuthController extends BaseController
         }
 
         $userModel = new UserModel();
+        $countryId = (int) $this->request->getPost('country_id');
         $phone = UserModel::normalizePhone((string) $this->request->getPost('phone'));
-        $user = $userModel->findByPhone($phone);
+        $user = $userModel->findByCountryAndPhone($countryId, $phone);
 
         if ($user === null || ! password_verify((string) $this->request->getPost('password'), $user['password'])) {
             return redirect()->back()->withInput()->with('error', 'Telefone ou senha inválidos.');

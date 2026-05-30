@@ -20,6 +20,16 @@
                         <input type="text" name="name" class="form-control" value="<?= old('name', $user['name'] ?? ''); ?>">
                     </div>
                     <div class="col-md-6">
+                        <label class="form-label">País</label>
+                        <select name="country_id" class="form-select">
+                            <?php foreach ($countries as $country): ?>
+                                <option value="<?= $country['id']; ?>" <?= (int) old('country_id', $user['country_id'] ?? 1) === (int) $country['id'] ? 'selected' : ''; ?>>
+                                    +<?= esc($country['code']); ?> <?= esc($country['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label">Telefone</label>
                         <input type="text" name="phone" class="form-control" value="<?= old('phone', format_phone($user['phone'] ?? '')); ?>" placeholder="(11) 9-4634-2101" data-phone-mask>
                     </div>

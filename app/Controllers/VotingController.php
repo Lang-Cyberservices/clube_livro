@@ -37,7 +37,7 @@ class VotingController extends BaseController
         $rules = [
             'title'       => 'required|min_length[3]|max_length[255]',
             'author'      => 'required|min_length[3]|max_length[255]',
-            'cover_image' => 'required|valid_url_strict',
+            'cover_image' => 'permit_empty|valid_url_strict',
             'description' => 'required|min_length[20]',
         ];
 
@@ -45,12 +45,14 @@ class VotingController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $coverImage = trim((string) $this->request->getPost('cover_image'));
+
         (new BookSuggestionModel())->insert([
             'session_id'  => $session['id'],
             'user_id'     => current_user_id(),
             'title'       => trim((string) $this->request->getPost('title')),
             'author'      => trim((string) $this->request->getPost('author')),
-            'cover_image' => trim((string) $this->request->getPost('cover_image')),
+            'cover_image' => $coverImage !== '' ? $coverImage : null,
             'description' => trim((string) $this->request->getPost('description')),
         ]);
 

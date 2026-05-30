@@ -49,10 +49,17 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
     $routes->get('votacao', 'VotingController::index');
     $routes->post('votacao/ativar', 'VotingController::activate');
     $routes->post('votacao/finalizar', 'VotingController::finalize');
+    $routes->post('votacao/sugestao', 'VotingController::storeSuggestion');
 
     $routes->get('users', 'UsersController::index');
     $routes->get('users/new', 'UsersController::new');
     $routes->post('users', 'UsersController::create');
     $routes->get('users/(:num)/edit', 'UsersController::edit/$1');
     $routes->post('users/(:num)', 'UsersController::update/$1');
+
+    $routes->get('paises', 'CountriesController::index');
+    $routes->get('paises/new', 'CountriesController::new');
+    $routes->post('paises', 'CountriesController::create');
+    $routes->get('paises/(:num)/edit', 'CountriesController::edit/$1');
+    $routes->post('paises/(:num)', 'CountriesController::update/$1');
 });

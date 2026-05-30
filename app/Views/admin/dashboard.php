@@ -11,6 +11,7 @@
         <a href="/admin/books" class="btn btn-outline-secondary">Lista de livros</a>
         <a href="/admin/votacao" class="btn btn-outline-secondary">Votação</a>
         <a href="/admin/users" class="btn btn-outline-secondary">Usuários</a>
+        <a href="/admin/paises" class="btn btn-outline-secondary">Países</a>
     </div>
 </div>
 

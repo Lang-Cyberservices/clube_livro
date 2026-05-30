@@ -4,6 +4,9 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Libraries\BookVotingService;
+use App\Models\BookSuggestionModel;
+use App\Models\UserModel;
+use App\Models\VotingSessionModel;
 
 class VotingController extends BaseController
 {
@@ -14,6 +17,7 @@ class VotingController extends BaseController
 
         return view('admin/voting/index', [
             'title' => 'Gerenciar votação',
+            'users' => (new UserModel())->findAll(),
             ...$data,
         ]);
     }
@@ -38,5 +42,53 @@ class VotingController extends BaseController
         }
 
         return redirect()->to('/admin/books')->with('success', 'Votação encerrada. O livro "' . $winner['title'] . '" foi criado como leitura atual.');
+    }
+
+    public function storeSuggestion()
+    {
+        $service = new BookVotingService();
+        $session = $service->getOpenSession();
+
+        if ($session === null || $session['status'] !== VotingSessionModel::STATUS_COLLECTING) {
+            return redirect()->to('/admin/votacao')->with('error', 'A coleta de sugestões não está aberta.');
+        }
+
+        $targetUserId = (int) $this->request->getPost('user_id');
+        $userModel    = new UserModel();
+
+        if ($userModel->find($targetUserId) === null) {
+            return redirect()->to('/admin/votacao')->with('error', 'Usuário inválido.');
+        }
+
+        $suggestionModel = new BookSuggestionModel();
+        $count = $suggestionModel->countForUserInSession((int) $session['id'], $targetUserId);
+
+        if ($count >= 2) {
+            return redirect()->to('/admin/votacao')->with('error', 'Este usuário já atingiu o limite de 2 sugestões.');
+        }
+
+        $rules = [
+            'title'       => 'required|min_length[3]|max_length[255]',
+            'author'      => 'required|min_length[3]|max_length[255]',
+            'cover_image' => 'permit_empty|valid_url_strict',
+            'description' => 'required|min_length[20]',
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $coverImage = trim((string) $this->request->getPost('cover_image'));
+
+        $suggestionModel->insert([
+            'session_id'  => $session['id'],
+            'user_id'     => $targetUserId,
+            'title'       => trim((string) $this->request->getPost('title')),
+            'author'      => trim((string) $this->request->getPost('author')),
+            'cover_image' => $coverImage !== '' ? $coverImage : null,
+            'description' => trim((string) $this->request->getPost('description')),
+        ]);
+
+        return redirect()->to('/admin/votacao')->with('success', 'Sugestão cadastrada com sucesso.');
     }
 }

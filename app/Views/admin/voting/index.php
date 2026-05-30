@@ -4,10 +4,20 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="mb-1">Gerenciar votação</h1>
-        <p class="text-muted mb-0">Abra a votação quando as sugestões estiverem prontas e finalize para criar automaticamente o próximo livro.</p>
+        <p class="text-muted mb-0">Inicie a coleta de sugestões, abra a votação e finalize para criar automaticamente o próximo livro.</p>
     </div>
     <a href="/admin" class="btn btn-outline-secondary">Voltar ao painel</a>
 </div>
+
+<?php if (session()->has('errors')): ?>
+    <div class="alert alert-danger mb-4">
+        <ul class="mb-0">
+            <?php foreach (session('errors') as $error): ?>
+                <li><?= esc($error); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
 
 <div class="row g-4">
     <div class="col-lg-4">
@@ -15,7 +25,7 @@
             <small class="text-uppercase text-muted fw-semibold">Status atual</small>
             <?php if ($session === null): ?>
                 <h2 class="mt-2">Sem ciclo aberto</h2>
-                <p class="text-muted mb-0">Assim que não houver livro em andamento, as sugestões poderão ser iniciadas.</p>
+                <p class="text-muted mb-0">Assim que não houver livro em andamento, as sugestões serão iniciadas automaticamente.</p>
             <?php else: ?>
                 <h2 class="mt-2"><?= $session['status'] === 'active' ? 'Votação ativa' : 'Coleta de sugestões'; ?></h2>
                 <p class="text-muted">Existem <?= count($suggestions); ?> sugestões neste ciclo.</p>
@@ -38,7 +48,47 @@
         </div>
     </div>
 
-    <div class="col-lg-8">
+    <?php if ($session !== null && $session['status'] === 'collecting'): ?>
+    <div class="col-lg-4">
+        <div class="form-panel rounded-4 p-4 h-100">
+            <small class="text-uppercase text-muted fw-semibold">Admin</small>
+            <h2 class="mb-3">Cadastrar sugestão</h2>
+            <form method="post" action="/admin/votacao/sugestao">
+                <?= csrf_field(); ?>
+                <div class="mb-3">
+                    <label class="form-label">Membro</label>
+                    <select name="user_id" class="form-select" required>
+                        <option value="">Selecione...</option>
+                        <?php foreach ($users as $user): ?>
+                            <option value="<?= esc((string) $user['id']); ?>" <?= (int) old('user_id') === (int) $user['id'] ? 'selected' : ''; ?>>
+                                <?= esc($user['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Título</label>
+                    <input type="text" name="title" class="form-control" value="<?= old('title'); ?>">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Autor</label>
+                    <input type="text" name="author" class="form-control" value="<?= old('author'); ?>">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Imagem da capa (URL) <span class="text-muted fw-normal">— opcional</span></label>
+                    <input type="url" name="cover_image" class="form-control" value="<?= old('cover_image'); ?>">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Descrição</label>
+                    <textarea name="description" rows="4" class="form-control"><?= old('description'); ?></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Cadastrar sugestão</button>
+            </form>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="<?= ($session !== null && $session['status'] === 'collecting') ? 'col-lg-4' : 'col-lg-8'; ?>">
         <div class="form-panel rounded-4 p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
@@ -55,7 +105,11 @@
                     <?php foreach ($suggestions as $suggestion): ?>
                         <div class="col-md-6">
                             <article class="card border-0 h-100 overflow-hidden">
-                                <img src="<?= esc($suggestion['cover_image']); ?>" alt="Capa de <?= esc($suggestion['title']); ?>" class="book-cover" style="min-height: 260px;">
+                                <?php if (! empty($suggestion['cover_image'])): ?>
+                                    <img src="<?= esc($suggestion['cover_image']); ?>" alt="Capa de <?= esc($suggestion['title']); ?>" class="book-cover" style="min-height: 260px;">
+                                <?php else: ?>
+                                    <div class="book-cover d-flex align-items-center justify-content-center bg-light text-muted" style="min-height: 260px;">Sem capa</div>
+                                <?php endif; ?>
                                 <div class="p-4">
                                     <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                                         <div>

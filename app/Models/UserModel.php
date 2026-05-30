@@ -14,7 +14,7 @@ class UserModel extends Model
     protected $returnType       = 'array';
     protected $useAutoIncrement = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['name', 'phone', 'password', 'must_change_password', 'role'];
+    protected $allowedFields    = ['name', 'country_id', 'phone', 'password', 'must_change_password', 'role'];
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
     protected array $casts = [
@@ -28,6 +28,11 @@ class UserModel extends Model
     public function findByPhone(string $phone): ?array
     {
         return $this->where('phone', $phone)->first();
+    }
+
+    public function findByCountryAndPhone(int $countryId, string $phone): ?array
+    {
+        return $this->where('country_id', $countryId)->where('phone', $phone)->first();
     }
 
     public static function normalizePhone(string $phone): string

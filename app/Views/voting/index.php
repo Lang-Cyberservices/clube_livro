@@ -41,7 +41,7 @@
                                 <input type="text" name="author" class="form-control" value="<?= old('author'); ?>">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Imagem da capa (URL)</label>
+                                <label class="form-label">Imagem da capa (URL) <span class="text-muted fw-normal">— opcional</span></label>
                                 <input type="url" name="cover_image" class="form-control" value="<?= old('cover_image'); ?>">
                             </div>
                             <div class="mb-3">
@@ -101,7 +101,11 @@
                     <?php foreach ($suggestions as $suggestion): ?>
                         <div class="col-md-6">
                             <article class="card border-0 h-100 overflow-hidden">
-                                <img src="<?= esc($suggestion['cover_image']); ?>" alt="Capa de <?= esc($suggestion['title']); ?>" class="book-cover" style="min-height: 280px;">
+                                <?php if (! empty($suggestion['cover_image'])): ?>
+                                    <img src="<?= esc($suggestion['cover_image']); ?>" alt="Capa de <?= esc($suggestion['title']); ?>" class="book-cover" style="min-height: 280px;">
+                                <?php else: ?>
+                                    <div class="book-cover d-flex align-items-center justify-content-center bg-light text-muted" style="min-height: 280px;">Sem capa</div>
+                                <?php endif; ?>
                                 <div class="p-4">
                                     <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                                         <div>
