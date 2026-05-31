@@ -20,7 +20,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Telefone</label>
-                        <input type="text" name="phone" class="form-control" value="<?= old('phone', format_phone($user['phone'])); ?>" placeholder="(11) 9-4634-2101" data-phone-mask>
+                        <input type="text" name="phone" class="form-control" value="<?= old('phone', format_phone($user['phone'], $phoneMask ?? null)); ?>" placeholder="(11) 9-4634-2101" data-phone-mask="<?= esc($phoneMask ?? ''); ?>">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Nova senha</label>

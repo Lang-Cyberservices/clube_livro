@@ -31,7 +31,17 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Telefone</label>
-                        <input type="text" name="phone" class="form-control" value="<?= old('phone', format_phone($user['phone'] ?? '')); ?>" placeholder="(00) 0-0000-0000" data-phone-mask>
+                        <?php
+                            $selectedCountryId = (int) old('country_id', $user['country_id'] ?? 1);
+                            $selectedMask = '';
+                            foreach ($countries as $c) {
+                                if ((int) $c['id'] === $selectedCountryId) {
+                                    $selectedMask = $c['phone_mask'] ?? '';
+                                    break;
+                                }
+                            }
+                        ?>
+                        <input type="text" name="phone" class="form-control" value="<?= old('phone', format_phone($user['phone'] ?? '', $selectedMask ?: null)); ?>" placeholder="(00) 0-0000-0000" data-phone-mask="<?= esc($selectedMask); ?>">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Perfil</label>
@@ -53,4 +63,17 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        var countryMasks = <?= json_encode(array_column($countries, 'phone_mask', 'id')); ?>;
+        var countrySelect = document.querySelector('select[name="country_id"]');
+        var phoneInput = document.querySelector('input[name="phone"]');
+
+        countrySelect.addEventListener('change', function () {
+            var mask = countryMasks[this.value] || '';
+            phoneInput.dataset.phoneMask = mask;
+            window.reapplyPhoneMask(phoneInput);
+        });
+    })();
+</script>
 <?= $this->endSection(); ?>

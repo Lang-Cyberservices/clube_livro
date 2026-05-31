@@ -9,7 +9,7 @@ class CountryModel extends Model
     protected $table         = 'countries';
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
-    protected $allowedFields = ['code', 'name'];
+    protected $allowedFields = ['code', 'phone_mask', 'name'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

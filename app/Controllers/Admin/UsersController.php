@@ -10,8 +10,11 @@ class UsersController extends BaseController
 {
     public function index()
     {
+        $countries = (new CountryModel())->findAll();
+
         return view('admin/users/index', [
-            'users' => (new UserModel())->orderBy('name', 'ASC')->findAll(),
+            'users'        => (new UserModel())->orderBy('name', 'ASC')->findAll(),
+            'countriesById' => array_column($countries, null, 'id'),
         ]);
     }
 

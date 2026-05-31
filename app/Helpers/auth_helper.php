@@ -44,9 +44,29 @@ if (! function_exists('must_change_password')) {
 }
 
 if (! function_exists('format_phone')) {
-    function format_phone(?string $phone): string
+    function format_phone(?string $phone, ?string $mask = null): string
     {
         $digits = preg_replace('/\D+/', '', (string) $phone) ?? '';
+
+        if ($mask !== null && $mask !== '') {
+            $result = '';
+            $di     = 0;
+            $len    = strlen($digits);
+
+            for ($i = 0; $i < strlen($mask); $i++) {
+                if ($mask[$i] === '#') {
+                    if ($di < $len) {
+                        $result .= $digits[$di++];
+                    } else {
+                        break;
+                    }
+                } elseif ($di < $len) {
+                    $result .= $mask[$i];
+                }
+            }
+
+            return $result;
+        }
 
         if (strlen($digits) === 10) {
             return sprintf('(%s) %s-%s', substr($digits, 0, 2), substr($digits, 2, 4), substr($digits, 6, 4));
@@ -54,10 +74,6 @@ if (! function_exists('format_phone')) {
 
         if (strlen($digits) === 11) {
             return sprintf('(%s) %s-%s-%s', substr($digits, 0, 2), substr($digits, 2, 1), substr($digits, 3, 4), substr($digits, 7, 4));
-        }
-
-        if ($digits === '') {
-            return $digits;
         }
 
         return $digits;

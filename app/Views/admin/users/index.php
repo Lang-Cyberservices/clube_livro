@@ -25,7 +25,7 @@
                 <?php foreach ($users as $user): ?>
                     <tr>
                         <td><?= esc($user['name']); ?></td>
-                        <td><?= esc(format_phone($user['phone'])); ?></td>
+                        <td><?= esc(format_phone($user['phone'], $countriesById[$user['country_id']]['phone_mask'] ?? null)); ?></td>
                         <td><span class="badge <?= $user['role'] === 'admin' ? 'text-bg-dark' : 'text-bg-secondary'; ?>"><?= esc($user['role']); ?></span></td>
                         <td><?= ! empty($user['must_change_password']) ? 'Pendente' : 'Concluido'; ?></td>
                         <td class="text-end">

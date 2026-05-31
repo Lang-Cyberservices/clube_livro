@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\CountryModel;
 use App\Models\UserModel;
 
 class ProfileController extends BaseController
@@ -14,9 +15,13 @@ class ProfileController extends BaseController
             return redirect()->to('/')->with('error', 'Usuario nao encontrado.');
         }
 
+        $country   = ! empty($user['country_id']) ? (new CountryModel())->find((int) $user['country_id']) : null;
+        $phoneMask = $country['phone_mask'] ?? null;
+
         return view('profile/edit', [
-            'title' => 'Meu cadastro',
-            'user'  => $user,
+            'title'     => 'Meu cadastro',
+            'user'      => $user,
+            'phoneMask' => $phoneMask,
         ]);
     }
 

@@ -112,38 +112,50 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.querySelectorAll('[data-phone-mask]').forEach(function (input) {
-            function applyPhoneMask(value) {
-                var digits = value.replace(/\D/g, '').slice(0, 11);
+        window.applyPhoneMask = function (value, mask) {
+            var digits = value.replace(/\D/g, '');
 
-                if (digits.length === 0) {
-                    return '';
+            if (mask) {
+                var maxDigits = (mask.match(/#/g) || []).length;
+                digits = digits.slice(0, maxDigits);
+
+                if (digits.length === 0) return '';
+
+                var result = '';
+                var di = 0;
+
+                for (var i = 0; i < mask.length; i++) {
+                    if (mask[i] === '#') {
+                        if (di < digits.length) result += digits[di++];
+                        else break;
+                    } else if (di < digits.length) {
+                        result += mask[i];
+                    }
                 }
 
-                if (digits.length <= 2) {
-                    return '(' + digits;
-                }
-
-                if (digits.length <= 3) {
-                    return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
-                }
-
-                if (digits.length <= 6) {
-                    return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
-                }
-
-                if (digits.length <= 10) {
-                    return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 6) + '-' + digits.slice(6, 10);
-                }
-
-                return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 3) + '-' + digits.slice(3, 7) + '-' + digits.slice(7, 11);
+                return result;
             }
 
+            digits = digits.slice(0, 11);
+
+            if (digits.length === 0) return '';
+            if (digits.length <= 2) return '(' + digits;
+            if (digits.length <= 3) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
+            if (digits.length <= 6) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
+            if (digits.length <= 10) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 6) + '-' + digits.slice(6, 10);
+            return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 3) + '-' + digits.slice(3, 7) + '-' + digits.slice(7, 11);
+        };
+
+        window.reapplyPhoneMask = function (input) {
+            input.value = window.applyPhoneMask(input.value, input.dataset.phoneMask || '');
+        };
+
+        document.querySelectorAll('[data-phone-mask]').forEach(function (input) {
             input.addEventListener('input', function () {
-                input.value = applyPhoneMask(input.value);
+                input.value = window.applyPhoneMask(input.value, input.dataset.phoneMask || '');
             });
 
-            input.value = applyPhoneMask(input.value);
+            input.value = window.applyPhoneMask(input.value, input.dataset.phoneMask || '');
         });
     </script>
 </body>

@@ -23,6 +23,11 @@
                         <label class="form-label">Nome</label>
                         <input type="text" name="name" class="form-control" value="<?= old('name', $country['name'] ?? ''); ?>" placeholder="Brasil">
                     </div>
+                    <div class="col-12">
+                        <label class="form-label">Máscara do telefone</label>
+                        <input type="text" name="phone_mask" class="form-control" value="<?= old('phone_mask', $country['phone_mask'] ?? ''); ?>" placeholder="(##) #-####-####">
+                        <small class="text-muted"><code>#</code> representa um dígito. Deixe em branco para usar o formato padrão.</small>
+                    </div>
                 </div>
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">Salvar país</button>

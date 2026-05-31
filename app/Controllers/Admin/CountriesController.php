@@ -79,9 +79,12 @@ class CountriesController extends BaseController
             return null;
         }
 
+        $phoneMask = trim((string) $this->request->getPost('phone_mask'));
+
         return [
-            'code' => $this->request->getPost('code'),
-            'name' => $this->request->getPost('name'),
+            'code'       => $this->request->getPost('code'),
+            'phone_mask' => $phoneMask !== '' ? $phoneMask : null,
+            'name'       => $this->request->getPost('name'),
         ];
     }
 }

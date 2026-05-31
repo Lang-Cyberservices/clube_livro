@@ -21,7 +21,17 @@
                 </div>
                 <div class="mb-3">
                     <label for="phone" class="form-label">Telefone</label>
-                    <input type="text" name="phone" id="phone" class="form-control" value="<?= old('phone'); ?>" placeholder="(00) 9-0000-0000" data-phone-mask>
+                    <?php
+                        $selectedCountryId = (int) old('country_id', 1);
+                        $loginSelectedMask = '';
+                        foreach ($countries as $c) {
+                            if ((int) $c['id'] === $selectedCountryId) {
+                                $loginSelectedMask = $c['phone_mask'] ?? '';
+                                break;
+                            }
+                        }
+                    ?>
+                    <input type="text" name="phone" id="phone" class="form-control" value="<?= old('phone'); ?>" placeholder="(00) 9-0000-0000" data-phone-mask="<?= esc($loginSelectedMask); ?>">
                 </div>
                 <div class="mb-4">
                     <label for="password" class="form-label">Senha</label>
@@ -32,4 +42,17 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        var countryMasks = <?= json_encode(array_column($countries, 'phone_mask', 'id')); ?>;
+        var countrySelect = document.querySelector('select[name="country_id"]');
+        var phoneInput = document.getElementById('phone');
+
+        countrySelect.addEventListener('change', function () {
+            var mask = countryMasks[this.value] || '';
+            phoneInput.dataset.phoneMask = mask;
+            window.reapplyPhoneMask(phoneInput);
+        });
+    })();
+</script>
 <?= $this->endSection(); ?>
