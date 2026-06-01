@@ -139,18 +139,19 @@
                         <p class="text-muted mb-0">Seu limite de sugestões neste ciclo já foi atingido.</p>
                     <?php endif; ?>
                 <?php elseif ($session['status'] === 'active'): ?>
+                    <style>.vote-check { border-radius: 50% !important; }</style>
                     <form method="post" action="/votacao/votar">
                         <?= csrf_field(); ?>
                         <div class="d-grid gap-3">
                             <?php foreach ($suggestions as $suggestion): ?>
-                                <label class="card border-0 p-3">
+                                <label class="card border-0 p-3" style="cursor:pointer">
                                     <div class="form-check">
                                         <input
-                                            class="form-check-input"
-                                            type="radio"
-                                            name="suggestion_id"
+                                            class="form-check-input vote-check"
+                                            type="checkbox"
+                                            name="suggestion_id[]"
                                             value="<?= $suggestion['id']; ?>"
-                                            <?= (int) ($userVote['suggestion_id'] ?? 0) === (int) $suggestion['id'] ? 'checked' : ''; ?>
+                                            <?= in_array((int) $suggestion['id'], $userVotedIds, true) ? 'checked' : ''; ?>
                                         >
                                         <span class="form-check-label fw-semibold"><?= esc($suggestion['title']); ?></span>
                                     </div>
@@ -158,7 +159,7 @@
                                 </label>
                             <?php endforeach; ?>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 mt-3">Registrar voto</button>
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Registrar votos</button>
                     </form>
                 <?php else: ?>
                     <p class="text-muted mb-0">Aguarde a abertura da votação pelo administrador.</p>

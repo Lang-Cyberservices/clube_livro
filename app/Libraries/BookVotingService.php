@@ -52,11 +52,12 @@ class BookVotingService
     {
         $session = $this->getOrCreateOpenSession($userId);
         $suggestions = $session === null ? [] : $this->suggestionModel->getSessionSuggestionsWithStats((int) $session['id']);
-        $userVote = null;
+        $userVotedIds = [];
         $userSuggestionCount = 0;
 
         if ($session !== null && $userId !== null) {
-            $userVote = $this->voteModel->findUserVote((int) $session['id'], $userId);
+            $votes = $this->voteModel->findUserVotes((int) $session['id'], $userId);
+            $userVotedIds = array_map('intval', array_column($votes, 'suggestion_id'));
             $userSuggestionCount = $this->suggestionModel->countForUserInSession((int) $session['id'], $userId);
         }
 
@@ -64,7 +65,7 @@ class BookVotingService
             'canManageSuggestions' => $this->isSuggestionWindowAvailable(),
             'session'              => $session,
             'suggestions'          => $suggestions,
-            'userVote'             => $userVote,
+            'userVotedIds'         => $userVotedIds,
             'userSuggestionCount'  => $userSuggestionCount,
         ];
     }

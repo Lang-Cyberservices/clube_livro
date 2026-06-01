@@ -72,27 +72,32 @@ class VotingController extends BaseController
             return redirect()->to('/votacao')->with('error', 'A votação não está aberta no momento.');
         }
 
-        $suggestionId = (int) $this->request->getPost('suggestion_id');
-        $suggestionIds = array_map(static fn (array $suggestion): int => (int) $suggestion['id'], $data['suggestions']);
+        $validIds = array_map(static fn (array $s): int => (int) $s['id'], $data['suggestions']);
+        $submittedIds = array_values(array_intersect(
+            array_map('intval', (array) ($this->request->getPost('suggestion_id') ?? [])),
+            $validIds
+        ));
 
-        if (! in_array($suggestionId, $suggestionIds, true)) {
-            return redirect()->to('/votacao')->with('error', 'Selecione uma sugestão válida para votar.');
-        }
+        $currentIds = $data['userVotedIds'];
+        $voteModel  = new BookVoteModel();
+        $userId     = (int) current_user_id();
+        $sessionId  = (int) $session['id'];
 
-        $existingVote = (new BookVoteModel())->findUserVote((int) $session['id'], (int) current_user_id());
-
-        if ($existingVote !== null) {
-            (new BookVoteModel())->update((int) $existingVote['id'], [
-                'suggestion_id' => $suggestionId,
-            ]);
-        } else {
-            (new BookVoteModel())->insert([
-                'session_id'    => $session['id'],
-                'suggestion_id' => $suggestionId,
-                'user_id'       => current_user_id(),
+        foreach (array_diff($submittedIds, $currentIds) as $id) {
+            $voteModel->insert([
+                'session_id'    => $sessionId,
+                'suggestion_id' => $id,
+                'user_id'       => $userId,
             ]);
         }
 
-        return redirect()->to('/votacao')->with('success', 'Seu voto foi registrado.');
+        foreach (array_diff($currentIds, $submittedIds) as $id) {
+            $existing = $voteModel->findUserVoteForSuggestion($sessionId, $userId, $id);
+            if ($existing !== null) {
+                $voteModel->delete((int) $existing['id']);
+            }
+        }
+
+        return redirect()->to('/votacao')->with('success', 'Seus votos foram atualizados.');
     }
 }

@@ -22,10 +22,18 @@ class BookVoteModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    public function findUserVote(int $sessionId, int $userId): ?array
+    public function findUserVoteForSuggestion(int $sessionId, int $userId, int $suggestionId): ?array
     {
         return $this->where('session_id', $sessionId)
             ->where('user_id', $userId)
+            ->where('suggestion_id', $suggestionId)
             ->first();
+    }
+
+    public function findUserVotes(int $sessionId, int $userId): array
+    {
+        return $this->where('session_id', $sessionId)
+            ->where('user_id', $userId)
+            ->findAll();
     }
 }

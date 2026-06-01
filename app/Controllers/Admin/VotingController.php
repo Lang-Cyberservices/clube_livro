@@ -47,7 +47,7 @@ class VotingController extends BaseController
     public function storeSuggestion()
     {
         $service = new BookVotingService();
-        $session = $service->getOpenSession();
+        $session = $service->getOrCreateOpenSession();
 
         if ($session === null || $session['status'] !== VotingSessionModel::STATUS_COLLECTING) {
             return redirect()->to('/admin/votacao')->with('error', 'A coleta de sugestões não está aberta.');
