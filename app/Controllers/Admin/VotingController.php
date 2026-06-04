@@ -41,7 +41,12 @@ class VotingController extends BaseController
             return redirect()->to('/admin/votacao')->with('error', $exception->getMessage());
         }
 
-        return redirect()->to('/admin/books')->with('success', 'Votação encerrada. O livro "' . $winner['title'] . '" foi criado como leitura atual.');
+        $msg = 'Votação encerrada. O livro "' . $winner['title'] . '" foi criado como leitura atual.';
+        if (! empty($winner['_tie_broken'])) {
+            $msg .= ' (Havia empate — livro escolhido aleatoriamente.)';
+        }
+
+        return redirect()->to('/admin/books')->with('success', $msg);
     }
 
     public function storeSuggestion()

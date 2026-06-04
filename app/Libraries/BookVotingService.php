@@ -109,7 +109,10 @@ class BookVotingService
             throw new RuntimeException('Não há sugestões para encerrar esta votação.');
         }
 
-        $winner = $suggestions[0];
+        $maxVotes            = (int) $suggestions[0]['vote_count'];
+        $tied                = array_values(array_filter($suggestions, fn ($s) => (int) $s['vote_count'] === $maxVotes));
+        $winner              = count($tied) > 1 ? $tied[array_rand($tied)] : $tied[0];
+        $winner['_tie_broken'] = count($tied) > 1;
         $startDate = new DateTimeImmutable('today');
         $meetingDate = $startDate->modify('+30 days');
 
