@@ -33,9 +33,13 @@
                     ?>
                     <input type="text" name="phone" id="phone" class="form-control" value="<?= old('phone'); ?>" placeholder="(00) 9-0000-0000" data-phone-mask="<?= esc($loginSelectedMask); ?>">
                 </div>
-                <div class="mb-4">
+                <div class="mb-3">
                     <label for="password" class="form-label">Senha</label>
                     <input type="password" name="password" id="password" class="form-control">
+                </div>
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" name="remember_me" id="remember_me" value="1">
+                    <label class="form-check-label" for="remember_me">Permanecer conectado</label>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Entrar</button>
             </form>

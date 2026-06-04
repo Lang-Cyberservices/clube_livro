@@ -37,6 +37,16 @@ class AuthController extends BaseController
 
         $this->storeUserInSession($user);
 
+        if ($this->request->getPost('remember_me')) {
+            $token = bin2hex(random_bytes(32));
+            (new UserModel())->setRememberToken(
+                (int) $user['id'],
+                hash('sha256', $token),
+                date('Y-m-d H:i:s', strtotime('+30 days'))
+            );
+            set_cookie('remember_me', $token, 30 * 24 * 3600, '/', '', '', true, true);
+        }
+
         if ($user['must_change_password']) {
             return redirect()->to('/auth/primeiro-acesso')->with('success', 'No primeiro acesso, atualize sua senha para continuar.');
         }
@@ -80,6 +90,14 @@ class AuthController extends BaseController
 
     public function logout()
     {
+        if (get_cookie('remember_me')) {
+            (new UserModel())->update((int) current_user_id(), [
+                'remember_token'            => null,
+                'remember_token_expires_at' => null,
+            ]);
+            delete_cookie('remember_me');
+        }
+
         session()->remove('user');
         session()->destroy();
 
