@@ -19,6 +19,8 @@ class BookModel extends Model
         'start_reading_date',
         'scheduled_meeting_date',
         'actual_meeting_date',
+        'participant_count',
+        'book_rating',
         'meeting_happened',
         'is_current',
     ];

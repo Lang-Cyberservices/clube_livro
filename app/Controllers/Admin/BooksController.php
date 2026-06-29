@@ -105,6 +105,8 @@ class BooksController extends BaseController
             'start_reading_date'     => 'required|valid_date[Y-m-d]',
             'scheduled_meeting_date' => 'required|valid_date[Y-m-d]',
             'actual_meeting_date'    => 'permit_empty|valid_date[Y-m-d]',
+            'participant_count'      => 'permit_empty|is_natural',
+            'book_rating'            => 'permit_empty|decimal|greater_than_equal_to[0]|less_than_equal_to[10]',
         ];
 
         if (! $this->validate($rules)) {
@@ -129,6 +131,9 @@ class BooksController extends BaseController
             $actualDate = null;
         }
 
+        $participantCount = $this->request->getPost('participant_count');
+        $bookRating       = $this->request->getPost('book_rating');
+
         return [
             'title'                  => $this->request->getPost('title'),
             'author'                 => $this->request->getPost('author'),
@@ -137,6 +142,8 @@ class BooksController extends BaseController
             'start_reading_date'     => $this->request->getPost('start_reading_date'),
             'scheduled_meeting_date' => $this->request->getPost('scheduled_meeting_date'),
             'actual_meeting_date'    => $actualDate,
+            'participant_count'      => ($participantCount === null || $participantCount === '') ? null : (int) $participantCount,
+            'book_rating'            => ($bookRating === null || $bookRating === '') ? null : (float) $bookRating,
             'meeting_happened'       => $meetingHappened ? 1 : 0,
             'is_current'             => $this->request->getPost('is_current') === '1' ? 1 : 0,
         ];

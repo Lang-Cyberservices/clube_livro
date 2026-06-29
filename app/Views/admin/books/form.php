@@ -71,6 +71,19 @@
                         <label class="form-label">Data real do encontro</label>
                         <input type="date" name="actual_meeting_date" class="form-control" value="<?= old('actual_meeting_date', $book['actual_meeting_date'] ?? ''); ?>">
                     </div>
+                    <div class="col-12">
+                        <hr class="my-2">
+                        <h2 class="h5 mb-0">Dados do encontro</h2>
+                        <p class="text-muted small mb-0">Exibidos publicamente na página do livro após o encontro acontecer.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Número de participantes</label>
+                        <input type="number" name="participant_count" class="form-control" min="0" step="1" value="<?= old('participant_count', $book['participant_count'] ?? ''); ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Nota do livro (0 a 10)</label>
+                        <input type="number" name="book_rating" class="form-control" min="0" max="10" step="0.1" value="<?= old('book_rating', $book['book_rating'] ?? ''); ?>">
+                    </div>
                     <div class="col-md-6">
                         <div class="form-check form-switch mt-2">
                             <input class="form-check-input" type="checkbox" role="switch" id="meeting_happened" name="meeting_happened" value="1" <?= old('meeting_happened', $book['meeting_happened'] ?? 0) ? 'checked' : ''; ?>>

@@ -47,6 +47,26 @@
         </div>
     </section>
 
+    <?php if ($book['meeting_happened'] && ($book['participant_count'] !== null || $book['book_rating'] !== null)): ?>
+        <section class="hero-panel p-4 p-lg-5 mb-5">
+            <h2 class="h4 mb-4">Dados do encontro</h2>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 p-3">
+                        <small class="text-uppercase text-muted fw-semibold">Participantes</small>
+                        <strong><?= $book['participant_count'] !== null ? (int) $book['participant_count'] : '—'; ?></strong>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 p-3">
+                        <small class="text-uppercase text-muted fw-semibold">Nota do livro</small>
+                        <strong><?= $book['book_rating'] !== null ? number_format((float) $book['book_rating'], 1, ',', '') . '/10' : '—'; ?></strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+    <?php endif; ?>
+
     <section class="row g-4">
         <div class="col-lg-5">
             <div class="form-panel rounded-4 p-4 h-100">
