@@ -27,7 +27,7 @@
                         <label class="form-label">Capa do livro</label>
                         <?php if (! empty($book['cover_image'])): ?>
                             <div class="mb-2">
-                                <img src="<?= esc($book['cover_image']); ?>" alt="Capa atual" style="height:80px;object-fit:cover;border-radius:4px;">
+                                <img src="<?= esc($book['cover_image']); ?>" onerror="this.onerror=null;this.src='<?= base_url('img/cover.png'); ?>';" alt="Capa atual" style="height:80px;object-fit:cover;border-radius:4px;">
                                 <small class="d-block text-muted mt-1">Imagem atual — deixe os campos abaixo em branco para mantê-la.</small>
                             </div>
                         <?php endif; ?>

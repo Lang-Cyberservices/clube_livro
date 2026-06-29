@@ -61,6 +61,10 @@
                                     <div class="invalid-feedback"></div>
                                     <small class="text-muted">JPG, PNG ou WEBP — máx. 5 MB</small>
                                 </div>
+                                <div id="sug-preview-wrap" class="mt-2 d-none">
+                                    <img id="sug-preview" alt="Pré-visualização da capa" class="book-cover-card" style="max-height:180px;width:auto;">
+                                    <small id="sug-preview-msg" class="d-block text-muted mt-1"></small>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Descrição</label>
@@ -72,11 +76,58 @@
                         <script>
                         (function () {
                             const form = document.getElementById('sug-form');
+                            const DEFAULT_COVER = '<?= base_url('img/cover.png'); ?>';
+                            const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                            const previewWrap = document.getElementById('sug-preview-wrap');
+                            const previewImg = document.getElementById('sug-preview');
+                            const previewMsg = document.getElementById('sug-preview-msg');
+                            const urlInput = form.querySelector('[name="cover_image_url"]');
+                            const fileInput = form.querySelector('[name="cover_image_file"]');
+
+                            function showPreview(src) {
+                                previewMsg.textContent = '';
+                                previewImg.onload = () => previewWrap.classList.remove('d-none');
+                                previewImg.onerror = () => {
+                                    previewImg.onerror = null;
+                                    previewImg.src = DEFAULT_COVER;
+                                    previewMsg.textContent = 'Não foi possível carregar a imagem — será usada a capa padrão.';
+                                    previewWrap.classList.remove('d-none');
+                                };
+                                previewImg.src = src;
+                            }
+
+                            function clearPreview() {
+                                previewWrap.classList.add('d-none');
+                                previewImg.removeAttribute('src');
+                                previewMsg.textContent = '';
+                            }
+
+                            function refreshPreview() {
+                                if (document.getElementById('sug_src_file').checked) {
+                                    const f = fileInput.files[0];
+                                    if (f && allowedTypes.includes(f.type)) {
+                                        const reader = new FileReader();
+                                        reader.onload = () => showPreview(reader.result);
+                                        reader.readAsDataURL(f);
+                                    } else {
+                                        clearPreview();
+                                    }
+                                } else {
+                                    const v = urlInput.value.trim();
+                                    if (v === '') { clearPreview(); return; }
+                                    try { new URL(v); showPreview(v); }
+                                    catch (_) { clearPreview(); }
+                                }
+                            }
+
+                            urlInput.addEventListener('input', refreshPreview);
+                            fileInput.addEventListener('change', refreshPreview);
 
                             form.querySelectorAll('input[name="cover_source"]').forEach(r =>
                                 r.addEventListener('change', () => {
                                     document.getElementById('sug-wrap-url').classList.toggle('d-none', r.value !== 'url');
                                     document.getElementById('sug-wrap-file').classList.toggle('d-none', r.value !== 'file');
+                                    refreshPreview();
                                 })
                             );
 
@@ -187,7 +238,7 @@
                     <?php foreach ($suggestions as $suggestion): ?>
                         <div class="col-md-6">
                             <article class="card border-0 h-100 overflow-hidden">
-                                <img src="<?= esc($suggestion['cover_image'] ?: base_url('img/cover.png')); ?>" alt="Capa de <?= esc($suggestion['title']); ?>" class="book-cover-card">
+                                <img src="<?= esc($suggestion['cover_image'] ?: base_url('img/cover.png')); ?>" onerror="this.onerror=null;this.src='<?= base_url('img/cover.png'); ?>';" alt="Capa de <?= esc($suggestion['title']); ?>" class="book-cover-card">
                                 <div class="p-4">
                                     <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                                         <div>
