@@ -13,11 +13,13 @@ class HomeController extends BaseController
     {
         $bookModel = new BookModel();
         $currentBook = $bookModel->getCurrentBook();
-        $discussion = $this->buildDiscussionData($currentBook);
+        $displayBook = $currentBook ?? $bookModel->getLastMeetingBook();
+        $discussion = $this->buildDiscussionData($displayBook);
 
         return view('home/index', [
             'title'    => 'Livro atual',
-            'book'     => $currentBook,
+            'book'     => $displayBook,
+            'hasCurrentBook' => $currentBook !== null,
             'comments' => $discussion['comments'],
             'replies'  => $discussion['replies'],
             'votingSession' => (new VotingSessionModel())->getOpenSession(),

@@ -51,6 +51,14 @@ class BookModel extends Model
             ->findAll();
     }
 
+    public function getLastMeetingBook(): ?array
+    {
+        return $this->where('meeting_happened', 1)
+            ->orderBy('COALESCE(actual_meeting_date, scheduled_meeting_date)', 'DESC', false)
+            ->orderBy('id', 'DESC')
+            ->first();
+    }
+
     public function setCurrentBook(int $bookId): void
     {
         $this->builder()->set('is_current', 0)->update();

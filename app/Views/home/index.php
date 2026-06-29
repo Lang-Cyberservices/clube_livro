@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main'); ?>
 
 <?= $this->section('content'); ?>
-<?php if ($book === null && is_logged_in() && $votingSession !== null): ?>
+<?php if (! $hasCurrentBook && is_logged_in() && $votingSession !== null): ?>
     <div class="card border-0 p-4 mb-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
@@ -17,5 +17,5 @@
         </div>
     </div>
 <?php endif; ?>
-<?= view('home/_book_discussion', ['book' => $book, 'comments' => $comments, 'replies' => $replies, 'contextLabel' => 'Livro atual']); ?>
+<?= view('home/_book_discussion', ['book' => $book, 'comments' => $comments, 'replies' => $replies, 'contextLabel' => $hasCurrentBook ? 'Livro atual' : 'Último encontro']); ?>
 <?= $this->endSection(); ?>
