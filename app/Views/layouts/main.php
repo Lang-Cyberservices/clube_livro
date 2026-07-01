@@ -158,5 +158,6 @@
             input.value = window.applyPhoneMask(input.value, input.dataset.phoneMask || '');
         });
     </script>
+    <?= $this->renderSection('scripts'); ?>
 </body>
 </html>

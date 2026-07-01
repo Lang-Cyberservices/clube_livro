@@ -61,12 +61,17 @@ class BookVotingService
             $userSuggestionCount = $this->suggestionModel->countForUserInSession((int) $session['id'], $userId);
         }
 
+        $votersBySuggestion = $session !== null
+            ? $this->voteModel->getVotersBySuggestion((int) $session['id'])
+            : [];
+
         return [
             'canManageSuggestions' => $this->isSuggestionWindowAvailable(),
             'session'              => $session,
             'suggestions'          => $suggestions,
             'userVotedIds'         => $userVotedIds,
             'userSuggestionCount'  => $userSuggestionCount,
+            'votersBySuggestion'   => $votersBySuggestion,
         ];
     }
 

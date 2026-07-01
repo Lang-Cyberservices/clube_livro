@@ -245,8 +245,24 @@
                                             <h3 class="h4 mb-1"><?= esc($suggestion['title']); ?></h3>
                                             <p class="text-muted mb-0">por <?= esc($suggestion['author']); ?></p>
                                         </div>
-                                        <?php if ($session && $session['status'] === 'active'): ?>
-                                            <span class="badge text-bg-secondary"><?= esc((string) $suggestion['vote_count']); ?> votos</span>
+                                        <?php if ($session && $session['status'] === 'active'):
+                                            $voters = $votersBySuggestion[$suggestion['id']] ?? [];
+                                            $voterNames = array_map(fn($n) => htmlspecialchars($n, ENT_QUOTES, 'UTF-8'), $voters);
+                                            $voterContent = $voterNames
+                                                ? implode('<br>', $voterNames)
+                                                : '<em class="text-muted">Nenhum voto ainda</em>';
+                                            $voterAttr = htmlspecialchars($voterContent, ENT_QUOTES, 'UTF-8');
+                                        ?>
+                                            <span class="badge text-bg-secondary"
+                                                  style="cursor:pointer"
+                                                  data-bs-toggle="popover"
+                                                  data-bs-trigger="hover focus"
+                                                  data-bs-placement="top"
+                                                  data-bs-html="true"
+                                                  data-bs-title="Quem votou"
+                                                  data-bs-content="<?= $voterAttr ?>">
+                                                <?= esc((string) $suggestion['vote_count']); ?> votos
+                                            </span>
                                         <?php endif; ?>
                                     </div>
                                     <p class="mb-3"><?= esc($suggestion['description']); ?></p>
@@ -260,4 +276,14 @@
         </div>
     </div>
 </div>
+<?= $this->endSection(); ?>
+
+<?= $this->section('scripts'); ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+        new bootstrap.Popover(el);
+    });
+});
+</script>
 <?= $this->endSection(); ?>
