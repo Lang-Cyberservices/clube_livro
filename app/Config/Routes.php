@@ -56,6 +56,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
     $routes->post('users', 'UsersController::create');
     $routes->get('users/(:num)/edit', 'UsersController::edit/$1');
     $routes->post('users/(:num)', 'UsersController::update/$1');
+    $routes->post('users/(:num)/reset-password', 'UsersController::resetPassword/$1');
 
     $routes->get('paises', 'CountriesController::index');
     $routes->get('paises/new', 'CountriesController::new');

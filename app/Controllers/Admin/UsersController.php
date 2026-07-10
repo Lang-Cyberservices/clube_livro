@@ -81,6 +81,27 @@ class UsersController extends BaseController
         return redirect()->to('/admin/users')->with('success', 'Usuário atualizado com sucesso.');
     }
 
+    public function resetPassword(int $id)
+    {
+        $userModel = new UserModel();
+        $user = $userModel->find($id);
+
+        if ($user === null) {
+            return redirect()->to('/admin/users')->with('error', 'Usuário não encontrado.');
+        }
+
+        if (! $this->validate(['password' => 'required|min_length[6]'])) {
+            return redirect()->back()->with('errors', $this->validator->getErrors());
+        }
+
+        $userModel->update($id, [
+            'password'             => password_hash((string) $this->request->getPost('password'), PASSWORD_DEFAULT),
+            'must_change_password' => true,
+        ]);
+
+        return redirect()->to("/admin/users/{$id}/edit")->with('success', 'Senha resetada com sucesso. O usuário deverá trocá-la no primeiro acesso.');
+    }
+
     private function getValidatedUserData(?int $id = null): ?array
     {
         $userModel = new UserModel();

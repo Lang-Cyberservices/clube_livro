@@ -50,11 +50,18 @@
                             <option value="admin" <?= old('role', $user['role'] ?? 'user') === 'admin' ? 'selected' : ''; ?>>Administrador</option>
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label"><?= $user ? 'Nova senha (opcional)' : 'Senha'; ?></label>
-                        <input type="text" name="password" class="form-control" value="123mudar4">
-                        <small class="text-muted d-block mt-1">Ao definir uma senha, o usuario precisara troca-la no primeiro acesso.</small>
-                    </div>
+                    <?php if ($user): ?>
+                        <div class="col-md-6">
+                            <label class="form-label d-block">Senha</label>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#resetPasswordModal">Resetar senha</button>
+                        </div>
+                    <?php else: ?>
+                        <div class="col-md-6">
+                            <label class="form-label">Senha</label>
+                            <input type="text" name="password" class="form-control" value="123mudar4">
+                            <small class="text-muted d-block mt-1">Ao definir uma senha, o usuario precisara troca-la no primeiro acesso.</small>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">Salvar usuário</button>
@@ -63,6 +70,29 @@
         </div>
     </div>
 </div>
+
+<?php if ($user): ?>
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" action="/admin/users/<?= (int) $user['id']; ?>/reset-password" class="modal-content">
+                <?= csrf_field(); ?>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resetPasswordModalLabel">Resetar senha</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Nova senha</label>
+                    <input type="text" name="password" class="form-control" value="123mudar4">
+                    <small class="text-muted d-block mt-1">Ao definir uma senha, o usuario precisara troca-la no primeiro acesso.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Resetar senha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
 <script>
     (function () {
         var countryMasks = <?= json_encode(array_column($countries, 'phone_mask', 'id')); ?>;
