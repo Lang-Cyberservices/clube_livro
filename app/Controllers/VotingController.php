@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Libraries\BookVotingService;
 use App\Models\BookSuggestionModel;
-use App\Models\BookVoteModel;
+use App\Models\BookVoteLogModel;
 use App\Models\VotingSessionModel;
 
 class VotingController extends BaseController
@@ -78,24 +78,13 @@ class VotingController extends BaseController
             $validIds
         ));
 
-        $currentIds = $data['userVotedIds'];
-        $voteModel  = new BookVoteModel();
-        $userId     = (int) current_user_id();
-        $sessionId  = (int) $session['id'];
+        $userId    = (int) current_user_id();
+        $sessionId = (int) $session['id'];
 
-        foreach (array_diff($submittedIds, $currentIds) as $id) {
-            $voteModel->insert([
-                'session_id'    => $sessionId,
-                'suggestion_id' => $id,
-                'user_id'       => $userId,
-            ]);
-        }
-
-        foreach (array_diff($currentIds, $submittedIds) as $id) {
-            $existing = $voteModel->findUserVoteForSuggestion($sessionId, $userId, $id);
-            if ($existing !== null) {
-                $voteModel->delete((int) $existing['id']);
-            }
+        try {
+            $service->syncUserVotes($sessionId, $userId, $submittedIds, $userId, BookVoteLogModel::ACTOR_USER);
+        } catch (\RuntimeException $exception) {
+            return redirect()->to('/votacao')->with('error', $exception->getMessage());
         }
 
         return redirect()->to('/votacao')->with('success', 'Seus votos foram atualizados.');

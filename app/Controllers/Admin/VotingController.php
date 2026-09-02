@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Libraries\BookVotingService;
 use App\Models\BookSuggestionModel;
+use App\Models\BookVoteModel;
 use App\Models\UserModel;
 use App\Models\VotingSessionModel;
 
@@ -47,6 +48,56 @@ class VotingController extends BaseController
         }
 
         return redirect()->to('/admin/books')->with('success', $msg);
+    }
+
+    public function votes(int $suggestionId)
+    {
+        $service = new BookVotingService();
+        $data    = $service->buildVotingData(current_user_id());
+        $session = $data['session'];
+
+        if ($session === null || $session['status'] !== VotingSessionModel::STATUS_ACTIVE) {
+            return redirect()->to('/admin/votacao')->with('error', 'Os votos só podem ser gerenciados com a votação ativa.');
+        }
+
+        $suggestion = null;
+        foreach ($data['suggestions'] as $candidate) {
+            if ((int) $candidate['id'] === $suggestionId) {
+                $suggestion = $candidate;
+                break;
+            }
+        }
+
+        if ($suggestion === null) {
+            return redirect()->to('/admin/votacao')->with('error', 'Sugestão não encontrada neste ciclo.');
+        }
+
+        return view('admin/voting/votes', [
+            'title'      => 'Gerenciar votos',
+            'suggestion' => $suggestion,
+            'users'      => (new UserModel())->orderBy('name', 'asc')->findAll(),
+            'voterIds'   => (new BookVoteModel())->findSuggestionVoterIds((int) $session['id'], $suggestionId),
+        ]);
+    }
+
+    public function updateVotes(int $suggestionId)
+    {
+        $service = new BookVotingService();
+        $session = $service->getOrCreateOpenSession();
+
+        if ($session === null) {
+            return redirect()->to('/admin/votacao')->with('error', 'Os votos só podem ser gerenciados com a votação ativa.');
+        }
+
+        $userIds = array_map('intval', (array) ($this->request->getPost('user_id') ?? []));
+
+        try {
+            $service->syncSuggestionVoters((int) $session['id'], $suggestionId, $userIds, (int) current_user_id());
+        } catch (\RuntimeException $exception) {
+            return redirect()->to('/admin/votacao')->with('error', $exception->getMessage());
+        }
+
+        return redirect()->to('/admin/votacao')->with('success', 'Votos atualizados com sucesso.');
     }
 
     public function storeSuggestion()

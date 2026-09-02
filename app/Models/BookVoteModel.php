@@ -37,6 +37,16 @@ class BookVoteModel extends Model
             ->findAll();
     }
 
+    public function findSuggestionVoterIds(int $sessionId, int $suggestionId): array
+    {
+        $rows = $this->select('user_id')
+            ->where('session_id', $sessionId)
+            ->where('suggestion_id', $suggestionId)
+            ->findAll();
+
+        return array_map('intval', array_column($rows, 'user_id'));
+    }
+
     public function getVotersBySuggestion(int $sessionId): array
     {
         $rows = $this->select('book_votes.suggestion_id, users.name')

@@ -243,13 +243,25 @@
             <?php else: ?>
                 <div class="row g-3">
                     <?php foreach ($suggestions as $suggestion): ?>
+                        <?php
+                            $canManageVotes = $session !== null && $session['status'] === 'active';
+                            $manageVotesUrl = '/admin/votacao/sugestao/' . (int) $suggestion['id'] . '/votos';
+                        ?>
                         <div class="col-md-6">
                             <article class="card border-0 h-100 overflow-hidden">
+                                <?php if ($canManageVotes): ?><a href="<?= $manageVotesUrl; ?>" title="Gerenciar votos"><?php endif; ?>
                                 <img src="<?= esc($suggestion['cover_image'] ?: base_url('img/cover.png')); ?>" onerror="this.onerror=null;this.src='<?= base_url('img/cover.png'); ?>';" alt="Capa de <?= esc($suggestion['title']); ?>" class="book-cover-card">
+                                <?php if ($canManageVotes): ?></a><?php endif; ?>
                                 <div class="p-4">
                                     <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                                         <div>
-                                            <h3 class="h4 mb-1"><?= esc($suggestion['title']); ?></h3>
+                                            <h3 class="h4 mb-1">
+                                                <?php if ($canManageVotes): ?>
+                                                    <a href="<?= $manageVotesUrl; ?>" class="text-decoration-none text-reset"><?= esc($suggestion['title']); ?></a>
+                                                <?php else: ?>
+                                                    <?= esc($suggestion['title']); ?>
+                                                <?php endif; ?>
+                                            </h3>
                                             <p class="text-muted mb-0">por <?= esc($suggestion['author']); ?></p>
                                         </div>
                                         <?php
@@ -272,7 +284,10 @@
                                 </span>
                                     </div>
                                     <p class="mb-3"><?= esc($suggestion['description']); ?></p>
-                                    <small class="text-muted">Sugerido por <?= esc($suggestion['suggested_by']); ?></small>
+                                    <small class="text-muted d-block">Sugerido por <?= esc($suggestion['suggested_by']); ?></small>
+                                    <?php if ($canManageVotes): ?>
+                                        <a href="<?= $manageVotesUrl; ?>" class="btn btn-sm btn-outline-secondary mt-3">Gerenciar votos</a>
+                                    <?php endif; ?>
                                 </div>
                             </article>
                         </div>

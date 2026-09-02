@@ -50,6 +50,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
     $routes->post('votacao/ativar', 'VotingController::activate');
     $routes->post('votacao/finalizar', 'VotingController::finalize');
     $routes->post('votacao/sugestao', 'VotingController::storeSuggestion');
+    $routes->get('votacao/sugestao/(:num)/votos', 'VotingController::votes/$1');
+    $routes->post('votacao/sugestao/(:num)/votos', 'VotingController::updateVotes/$1');
 
     $routes->get('users', 'UsersController::index');
     $routes->get('users/new', 'UsersController::new');

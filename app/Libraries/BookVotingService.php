@@ -4,7 +4,9 @@ namespace App\Libraries;
 
 use App\Models\BookModel;
 use App\Models\BookSuggestionModel;
+use App\Models\BookVoteLogModel;
 use App\Models\BookVoteModel;
+use App\Models\UserModel;
 use App\Models\VotingSessionModel;
 use DateTimeImmutable;
 use RuntimeException;
@@ -15,12 +17,16 @@ class BookVotingService
         private ?BookModel $bookModel = null,
         private ?VotingSessionModel $sessionModel = null,
         private ?BookSuggestionModel $suggestionModel = null,
-        private ?BookVoteModel $voteModel = null
+        private ?BookVoteModel $voteModel = null,
+        private ?BookVoteLogModel $voteLogModel = null,
+        private ?UserModel $userModel = null
     ) {
         $this->bookModel = $this->bookModel ?? new BookModel();
         $this->sessionModel = $this->sessionModel ?? new VotingSessionModel();
         $this->suggestionModel = $this->suggestionModel ?? new BookSuggestionModel();
         $this->voteModel = $this->voteModel ?? new BookVoteModel();
+        $this->voteLogModel = $this->voteLogModel ?? new BookVoteLogModel();
+        $this->userModel = $this->userModel ?? new UserModel();
     }
 
     public function isSuggestionWindowAvailable(): bool
@@ -73,6 +79,127 @@ class BookVotingService
             'userSuggestionCount'  => $userSuggestionCount,
             'votersBySuggestion'   => $votersBySuggestion,
         ];
+    }
+
+    /**
+     * Sincroniza as sugestões votadas por um membro (visão da página de votação).
+     */
+    public function syncUserVotes(int $sessionId, int $userId, array $suggestionIds, int $actorId, string $actorRole): void
+    {
+        $this->assertVotingIsOpen($sessionId);
+
+        $validIds = array_map(
+            static fn (array $suggestion): int => (int) $suggestion['id'],
+            $this->suggestionModel->where('session_id', $sessionId)->findAll()
+        );
+
+        $targetIds = array_values(array_unique(array_intersect(array_map('intval', $suggestionIds), $validIds)));
+        $currentIds = array_map(
+            'intval',
+            array_column($this->voteModel->findUserVotes($sessionId, $userId), 'suggestion_id')
+        );
+
+        $this->runVoteChanges(
+            $targetIds,
+            $currentIds,
+            fn (int $suggestionId, bool $shouldVote) => $this->applyVoteChange(
+                $sessionId,
+                $suggestionId,
+                $userId,
+                $shouldVote,
+                $actorId,
+                $actorRole
+            )
+        );
+    }
+
+    /**
+     * Sincroniza os membros que votaram em uma sugestão (visão do admin).
+     */
+    public function syncSuggestionVoters(int $sessionId, int $suggestionId, array $userIds, int $actorId): void
+    {
+        $this->assertVotingIsOpen($sessionId);
+
+        $suggestion = $this->suggestionModel->find($suggestionId);
+
+        if ($suggestion === null || (int) $suggestion['session_id'] !== $sessionId) {
+            throw new RuntimeException('Sugestão não encontrada neste ciclo.');
+        }
+
+        $submittedIds = array_values(array_unique(array_map('intval', $userIds)));
+        $targetIds = $submittedIds === [] ? [] : array_map(
+            'intval',
+            array_column($this->userModel->whereIn('id', $submittedIds)->findAll(), 'id')
+        );
+        $currentIds = $this->voteModel->findSuggestionVoterIds($sessionId, $suggestionId);
+
+        $this->runVoteChanges(
+            $targetIds,
+            $currentIds,
+            fn (int $userId, bool $shouldVote) => $this->applyVoteChange(
+                $sessionId,
+                $suggestionId,
+                $userId,
+                $shouldVote,
+                $actorId,
+                BookVoteLogModel::ACTOR_ADMIN
+            )
+        );
+    }
+
+    private function assertVotingIsOpen(int $sessionId): void
+    {
+        $session = $this->sessionModel->find($sessionId);
+
+        if ($session === null || $session['status'] !== VotingSessionModel::STATUS_ACTIVE) {
+            throw new RuntimeException('A votação não está aberta no momento.');
+        }
+    }
+
+    /**
+     * Aplica as inclusões e remoções em transação, delegando cada mudança ao callback.
+     */
+    private function runVoteChanges(array $targetIds, array $currentIds, callable $apply): void
+    {
+        $db = $this->voteModel->db;
+        $db->transStart();
+
+        foreach (array_diff($targetIds, $currentIds) as $id) {
+            $apply((int) $id, true);
+        }
+
+        foreach (array_diff($currentIds, $targetIds) as $id) {
+            $apply((int) $id, false);
+        }
+
+        $db->transComplete();
+
+        if (! $db->transStatus()) {
+            throw new RuntimeException('Não foi possível atualizar os votos.');
+        }
+    }
+
+    private function applyVoteChange(int $sessionId, int $suggestionId, int $userId, bool $shouldVote, int $actorId, string $actorRole): void
+    {
+        $existing = $this->voteModel->findUserVoteForSuggestion($sessionId, $userId, $suggestionId);
+
+        if ($shouldVote && $existing === null) {
+            $this->voteModel->insert([
+                'session_id'    => $sessionId,
+                'suggestion_id' => $suggestionId,
+                'user_id'       => $userId,
+            ]);
+
+            $this->voteLogModel->log($sessionId, $suggestionId, $userId, BookVoteLogModel::ACTION_ADDED, $actorId, $actorRole);
+
+            return;
+        }
+
+        if (! $shouldVote && $existing !== null) {
+            $this->voteModel->delete((int) $existing['id']);
+
+            $this->voteLogModel->log($sessionId, $suggestionId, $userId, BookVoteLogModel::ACTION_REMOVED, $actorId, $actorRole);
+        }
     }
 
     public function activateVoting(int $adminUserId): void
