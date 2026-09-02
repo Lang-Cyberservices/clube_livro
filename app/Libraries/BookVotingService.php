@@ -246,7 +246,7 @@ class BookVotingService
         $winner              = count($tied) > 1 ? $tied[array_rand($tied)] : $tied[0];
         $winner['_tie_broken'] = count($tied) > 1;
         $startDate = new DateTimeImmutable('today');
-        $meetingDate = $startDate->modify('+30 days');
+        $meetingDate = $this->firstSundayAfterReadingPeriod($startDate);
 
         $this->bookModel->db->transStart();
 
@@ -278,5 +278,20 @@ class BookVotingService
         }
 
         return $winner;
+    }
+
+    /**
+     * Primeiro domingo a partir de 25 dias apos o inicio da leitura (inclusive).
+     */
+    private function firstSundayAfterReadingPeriod(DateTimeImmutable $startDate): DateTimeImmutable
+    {
+        $date = $startDate->modify('+25 days');
+
+        // 7 = domingo no formato ISO-8601 ('N')
+        if ((int) $date->format('N') === 7) {
+            return $date;
+        }
+
+        return $date->modify('next sunday');
     }
 }
