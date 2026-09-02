@@ -57,7 +57,7 @@ class ProfileController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Informe um telefone com 9 a 11 dígitos.');
         }
 
-        $existing = $userModel->findByPhone($phone);
+        $existing = $userModel->findByPhoneWithDeleted($phone);
 
         if ($existing !== null && (int) $existing['id'] !== $userId) {
             return redirect()->back()->withInput()->with('error', 'Este telefone ja esta em uso.');
@@ -76,13 +76,7 @@ class ProfileController extends BaseController
         $updatedUser = $userModel->find($userId);
 
         if ($updatedUser !== null) {
-            session()->set('user', [
-                'id'                   => $updatedUser['id'],
-                'name'                 => $updatedUser['name'],
-                'phone'                => $updatedUser['phone'],
-                'role'                 => $updatedUser['role'],
-                'must_change_password' => (bool) $updatedUser['must_change_password'],
-            ]);
+            store_user_session($updatedUser);
         }
 
         return redirect()->to('/perfil')->with('success', 'Cadastro atualizado com sucesso.');

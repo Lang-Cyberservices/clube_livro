@@ -15,6 +15,22 @@ if (! function_exists('current_user')) {
     }
 }
 
+if (! function_exists('store_user_session')) {
+    /**
+     * Grava (ou atualiza) na sessao a copia dos dados do usuario logado.
+     */
+    function store_user_session(array $user): void
+    {
+        session()->set('user', [
+            'id'                   => $user['id'],
+            'name'                 => $user['name'],
+            'phone'                => $user['phone'],
+            'role'                 => $user['role'],
+            'must_change_password' => (bool) $user['must_change_password'],
+        ]);
+    }
+}
+
 if (! function_exists('current_user_id')) {
     function current_user_id(): ?int
     {

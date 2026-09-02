@@ -106,12 +106,6 @@ class AuthController extends BaseController
 
     private function storeUserInSession(array $user): void
     {
-        session()->set('user', [
-            'id'                   => $user['id'],
-            'name'                 => $user['name'],
-            'phone'                => $user['phone'],
-            'role'                 => $user['role'],
-            'must_change_password' => (bool) $user['must_change_password'],
-        ]);
+        store_user_session($user);
     }
 }

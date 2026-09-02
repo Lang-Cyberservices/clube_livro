@@ -18,13 +18,7 @@ class AuthFilter implements FilterInterface
             if ($token !== null && $token !== '') {
                 $user = (new UserModel())->findByRememberToken(hash('sha256', $token));
                 if ($user !== null) {
-                    session()->set('user', [
-                        'id'                   => $user['id'],
-                        'name'                 => $user['name'],
-                        'phone'                => $user['phone'],
-                        'role'                 => $user['role'],
-                        'must_change_password' => (bool) $user['must_change_password'],
-                    ]);
+                    store_user_session($user);
 
                     return;
                 }
@@ -33,6 +27,20 @@ class AuthFilter implements FilterInterface
 
             return redirect()->to('/auth/login')->with('error', 'Faça login para continuar.');
         }
+
+        // A sessao guarda apenas uma copia dos dados: confere no banco se o
+        // usuario continua ativo (removidos sao derrubados na hora) e de
+        // quebra atualiza nome/perfil alterados pelo admin.
+        $user = (new UserModel())->find((int) current_user_id());
+
+        if ($user === null) {
+            delete_cookie('remember_me');
+            session()->remove('user');
+
+            return redirect()->to('/auth/login')->with('error', 'Sua conta não está mais disponível. Fale com um administrador.');
+        }
+
+        store_user_session($user);
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)

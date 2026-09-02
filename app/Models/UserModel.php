@@ -25,9 +25,18 @@ class UserModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    public function findByPhone(string $phone): ?array
+    protected $useSoftDeletes = true;
+    protected $deletedField   = 'deleted_at';
+
+    /**
+     * Busca pelo telefone incluindo usuarios removidos.
+     *
+     * O indice UNIQUE de phone e global, entao um usuario removido continua
+     * ocupando o numero: as checagens de duplicidade precisam enxerga-lo.
+     */
+    public function findByPhoneWithDeleted(string $phone): ?array
     {
-        return $this->where('phone', $phone)->first();
+        return $this->withDeleted()->where('phone', $phone)->first();
     }
 
     public function findByCountryAndPhone(int $countryId, string $phone): ?array
@@ -48,6 +57,25 @@ class UserModel extends Model
         return $this->where('remember_token', $hashedToken)
                     ->where('remember_token_expires_at >', date('Y-m-d H:i:s'))
                     ->first();
+    }
+
+    /**
+     * Reativa um usuario removido, sobrescrevendo os dados informados.
+     *
+     * Usa o query builder direto porque update() filtra por allowedFields e
+     * descartaria o deleted_at.
+     */
+    public function restore(int $id, array $data = []): bool
+    {
+        $data['deleted_at'] = null;
+        $data['updated_at'] = date('Y-m-d H:i:s');
+
+        return $this->db->table($this->table)->where('id', $id)->update($data);
+    }
+
+    public function countActiveAdmins(): int
+    {
+        return (int) $this->where('role', self::ROLE_ADMIN)->countAllResults();
     }
 
     public static function normalizePhone(string $phone): string
